@@ -35,7 +35,9 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
+                    return response.json().then(error => {
+                        throw new Error(`Error: ${response.status} ${error.message}`);
+                    });
                 }
                 return response.json();
             })
@@ -56,31 +58,6 @@
                 document.getElementById('repoName').value = savedRepoName;
             }
         };
-        fetch('https://api.github.com/user/repos', {
-    method: 'POST',
-    headers: {
-        'Authorization': 'token YOUR_ACCESS_TOKEN', // 替换为你的GitHub访问令牌
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ name: repoName })
-})
-.then(response => {
-    if (!response.ok) {
-        return response.json().then(error => {
-            throw new Error(`Error: ${response.status} ${error.message}`);
-        });
-    }
-    return response.json();
-})
-.then(data => {
-    document.getElementById('message').innerText = `Repository created: ${data.html_url}`;
-    console.log('Success:', data);
-})
-.catch((error) => {
-    document.getElementById('message').innerText = `Error: ${error.message}`;
-    console.error('Error:', error);
-});
-
     </script>
 </body>
 </html>

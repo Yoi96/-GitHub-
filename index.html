@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create GitHub Repository</title>
+</head>
+<body>
+    <h1>Create a New Repository</h1>
+    <form id="repoForm">
+        <input type="text" id="repoName" placeholder="Repository Name" required>
+        <button type="submit">Create Repository</button>
+    </form>
+    <div id="message"></div>
+
+    <script>
+        // 当表单提交时
+        document.getElementById('repoForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const repoName = document.getElementById('repoName').value;
+
+            // 保存到 Local Storage
+            localStorage.setItem("repoName", repoName);
+            console.log("Saved to Local Storage:", repoName);
+
+            // 调用 GitHub API 创建仓库
+            fetch('https://api.github.com/user/repos', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'token YOUR_ACCESS_TOKEN', // 替换为你的GitHub访问令牌
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: repoName })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('message').innerText = `Repository created: ${data.html_url}`;
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                document.getElementById('message').innerText = `Error: ${error.message}`;
+                console.error('Error:', error);
+            });
+        });
+
+        // 页面加载时检查 Local Storage
+        window.onload = function() {
+            const savedRepoName = localStorage.getItem("repoName");
+            if (savedRepoName) {
+                document.getElementById('repoName').value = savedRepoName;
+            }
+        };
+    </script>
+</body>
+</html>
